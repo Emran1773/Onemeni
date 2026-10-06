@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<link rel="icon" type="image/jpeg" href="icon.JPG">
+<link rel="apple-touch-icon" href="icon.JPG">
+<meta name="theme-color" content="#100a08">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>دقيقة واحدة</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#100a08;
+--bg2:#24100a;
+--panel:rgba(255,255,255,.055);
+--panel2:rgba(255,255,255,.09);
+--border:rgba(255,255,255,.1);
+--text:#fffaf7;
+--muted:#b6a39a;
+--orange:#f97316;
+--amber:#f59e0b;
+--coral:#fb7185;
+--gold:#fbbf24;
+}
+body{
+min-height:100vh;
+font-family:Arial,"Tahoma",sans-serif;
+color:var(--text);
+background:
+radial-gradient(circle at 15% 10%,rgba(249,115,22,.16),transparent 30%),
+radial-gradient(circle at 85% 85%,rgba(251,113,133,.1),transparent 30%),
+linear-gradient(145deg,var(--bg),var(--bg2));
+overflow-x:hidden
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:flex}
+.sidebar{
+position:fixed;right:0;top:0;width:270px;height:100vh;
+padding:25px 18px;
+background:rgba(17,9,7,.92);
+backdrop-filter:blur(24px);
+border-left:1px solid var(--border);
+z-index:100
+}
+.logo{
+display:flex;align-items:center;gap:12px;
+padding:4px 7px 30px
+}
+.logo-img{
+width:48px;height:48px;border-radius:15px;
+overflow:hidden
+}
+.logo-img img{
+width:100%;height:100%;object-fit:cover
+}
+.logo h2{font-size:18px}
+.logo p{
+font-size:11px;color:var(--muted);margin-top:4px
+}
+.nav{display:grid;gap:7px}
+.nav button{
+border:0;background:transparent;color:var(--muted);
+padding:14px;border-radius:14px;text-align:right;
+transition:.2s
+}
+.nav button:hover,
+.nav button.active{
+background:var(--panel2);color:var(--text)
+}
+.nav button.active{
+box-shadow:inset -3px 0 var(--orange)
+}
+.main{
+width:calc(100% - 270px);
+margin-right:270px;
+min-height:100vh;
+padding:34px
+}
+.top{
+max-width:1150px;margin:auto;
+display:flex;justify-content:space-between;
+align-items:center;margin-bottom:28px
+}
+.menu{
+display:none;width:45px;height:45px;
+border-radius:13px;border:1px solid var(--border);
+background:var(--panel);color:var(--text)
+}
+.hero{
+max-width:1150px;margin:auto;
+padding:40px;border:1px solid var(--border);
+border-radius:30px;
+background:
+linear-gradient(135deg,rgba(249,115,22,.15),rgba(251,191,36,.04)),
+var(--panel);
+box-shadow:0 25px 70px rgba(0,0,0,.32)
+}
+.hero h1{
+font-size:clamp(30px,5vw,52px);
+line-height:1.2;margin-bottom:13px
+}
+.hero p{
+color:var(--muted);
+line-height:1.9;
+max-width:700px
+}
+.challenge{
+max-width:1150px;
+margin:24px auto 0;
+display:grid;
+grid-template-columns:1fr 300px;
+gap:20px
+}
+.challenge-card,
+.result-card,
+.streak-card{
+border:1px solid var(--border);
+background:var(--panel);
+border-radius:26px;
+padding:28px
+}
+.challenge-label{
+display:inline-flex;
+padding:7px 11px;
+border-radius:10px;
+background:rgba(249,115,22,.12);
+color:#fdba74;
+font-size:12px;
+margin-bottom:18px
+}
+.challenge-card h2{
+font-size:28px;
+line-height:1.5;
+margin-bottom:14px
+}
+.challenge-card p{
+color:var(--muted);
+line-height:1.9
+}
+.answers{
+display:grid;
+gap:10px;
+margin-top:25px
+}
+.answer{
+width:100%;
+padding:15px 17px;
+border-radius:14px;
+border:1px solid var(--border);
+background:rgba(255,255,255,.045);
+color:var(--text);
+text-align:right;
+transition:.2s
+}
+.answer:hover{
+background:var(--panel2);
+border-color:rgba(249,115,22,.4)
+}
+.answer.selected{
+background:rgba(249,115,22,.15);
+border-color:var(--orange)
+}
+.answer.correct{
+background:rgba(34,197,94,.14);
+border-color:#22c55e
+}
+.answer.wrong{
+background:rgba(239,68,68,.12);
+border-color:#ef4444
+}
+.submit{
+width:100%;
+height:52px;
+margin-top:15px;
+border:0;
+border-radius:14px;
+background:linear-gradient(135deg,var(--orange),var(--amber));
+color:#271006;
+font-weight:800
+}
+.submit:disabled{
+opacity:.45;
+cursor:not-allowed
+}
+.side{
+display:grid;
+gap:20px
+}
+.result{
+text-align:center
+}
+.result-icon{
+font-size:42px;margin-bottom:10px
+}
+.result h3{
+font-size:22px;margin-bottom:7px
+}
+.result-score{
+font-size:42px;font-weight:900;
+margin:10px 0
+}
+.result p{
+color:var(--muted);font-size:13px
+}
+.streak-title{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:18px
+}
+.streak-title h3{font-size:18px}
+.streak-number{
+font-size:30px;font-weight:900
+}
+.days{
+display:flex;
+gap:7px;
+justify-content:space-between
+}
+.day{
+width:31px;height:31px;
+display:flex;align-items:center;justify-content:center;
+border-radius:9px;
+font-size:11px;
+color:var(--muted);
+background:rgba(255,255,255,.045);
+border:1px solid var(--border)
+}
+.day.done{
+background:rgba(249,115,22,.18);
+color:#fed7aa;
+border-color:rgba(249,115,22,.35)
+}
+.info{
+max-width:1150px;
+margin:20px auto;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:14px
+}
+.info-card{
+padding:21px;
+border:1px solid var(--border);
+background:var(--panel);
+border-radius:20px
+}
+.info-card strong{
+display:block;
+font-size:27px;
+margin-bottom:6px
+}
+.info-card span{
+color:var(--muted);
+font-size:13px
+}
+.hidden{display:none!important}
+.toast{
+position:fixed;
+left:20px;
+bottom:20px;
+padding:13px 18px;
+background:#26130d;
+border:1px solid var(--border);
+border-radius:13px;
+transform:translateY(100px);
+opacity:0;
+transition:.3s;
+z-index:300
+}
+.toast.show{
+transform:translateY(0);
+opacity:1
+}
+.overlay{
+position:fixed;inset:0;
+background:rgba(0,0,0,.55);
+display:none;z-index:90
+}
+.overlay.show{display:block}
+
+@media(max-width:900px){
+.sidebar{
+transform:translateX(100%);
+transition:.3s
+}
+.sidebar.open{transform:translateX(0)}
+.main{
+width:100%;
+margin-right:0;
+padding:20px
+}
+.menu{display:block}
+.challenge{
+grid-template-columns:1fr
+}
+}
+@media(max-width:600px){
+.hero{padding:27px}
+.challenge-card,.result-card,.streak-card{padding:22px}
+.info{grid-template-columns:1fr}
+.days{gap:4px}
+.day{width:28px;height:28px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+
+<div class="logo">
+<div class="logo-img">
+<img src="icon.JPG" alt="دقيقة واحدة">
+</div>
+<div>
+<h2>دقيقة واحدة</h2>
+<p>تحدٍّ واحد كل يوم</p>
+</div>
+</div>
+
+<nav class="nav">
+<button class="active" data-page="today">◉ تحدي اليوم</button>
+<button data-page="streak">🔥 السلسلة</button>
+<button data-page="stats">★ إحصائياتي</button>
+</nav>
+
+</aside>
+
+<main class="main">
+
+<div class="top">
+<button class="menu" id="menu">☰</button>
+<div></div>
+</div>
+
+<section class="hero">
+<h1>تحدٍّ واحد. دقيقة واحدة.</h1>
+<p>
+كل يوم تواجه تحديًا واحدًا فقط.
+أجب، تعلّم شيئًا جديدًا، وحافظ على سلسلتك دون محتوى ضخم أو تشتيت.
+</p>
+</section>
+
+<section class="challenge">
+
+<div class="challenge-card">
+
+<div class="challenge-label" id="category">سؤال معرفي</div>
+
+<h2 id="question"></h2>
+
+<p id="instruction">اختر الإجابة الصحيحة.</p>
+
+<div class="answers" id="answers"></div>
+
+<button class="submit" id="submit" disabled>
+تأكيد الإجابة
+</button>
+
+</div>
+
+<div class="side">
+
+<div class="result-card result">
+
+<div class="result-icon" id="resultIcon">○</div>
+
+<h3 id="resultTitle">نتيجتك اليوم</h3>
+
+<div class="result-score" id="score">0/1</div>
+
+<p id="resultText">أكمل تحدي اليوم لتحصل على نتيجتك.</p>
+
+</div>
+
+<div class="streak-card">
+
+<div class="streak-title">
+<h3>سلسلتك الحالية</h3>
+<div class="streak-number" id="streak">0</div>
+</div>
+
+<div class="days" id="days"></div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="info">
+
+<div class="info-card">
+<strong id="totalCompleted">0</strong>
+<span>تحديات مكتملة</span>
+</div>
+
+<div class="info-card">
+<strong id="bestStreak">0</strong>
+<span>أفضل سلسلة</span>
+</div>
+
+<div class="info-card">
+<strong id="successRate">—</strong>
+<span>نسبة الإجابات الصحيحة</span>
+</div>
+
+</section>
+
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+const STORAGE_KEY="one_minute_daily_challenge_v1";
+
+const challenges=[
+{
+id:"knowledge-1",
+category:"سؤال معرفي",
+question:"ما الكوكب المعروف باسم الكوكب الأحمر؟",
+answers:["المريخ","الزهرة","المشتري","عطارد"],
+correct:0
+},
+{
+id:"english-1",
+category:"كلمة إنجليزية",
+question:"ما معنى كلمة \"Ancient\"؟",
+answers:["حديث","قديم","سريع","قوي"],
+correct:1
+},
+{
+id:"logic-1",
+category:"لغز منطقي",
+question:"ما العدد التالي في السلسلة: 2، 4، 8، 16، ؟",
+answers:["20","24","32","36"],
+correct:2
+},
+{
+id:"history-1",
+category:"سؤال تاريخي",
+question:"في أي قارة قامت الحضارة المصرية القديمة؟",
+answers:["آسيا","أوروبا","أفريقيا","أمريكا"],
+correct:2
+},
+{
+id:"memory-1",
+category:"تمرين ذاكرة",
+question:"احفظ سريعًا: كتاب — قمر — مفتاح — شجرة. ما الكلمة الثالثة؟",
+answers:["كتاب","قمر","مفتاح","شجرة"],
+correct:2
+},
+{
+id:"reading-1",
+category:"سؤال قراءة",
+question:"ما الفائدة الأساسية من القراءة المنتظمة؟",
+answers:[
+"زيادة المعرفة وتنمية التفكير",
+"إضاعة الوقت فقط",
+"تقليل المفردات",
+"منع التعلم"
+],
+correct:0
+},
+{
+id:"critical-1",
+category:"تفكير نقدي",
+question:"إذا قال شخص: \"الجميع يعتقد ذلك، إذن هو صحيح\"، فما المشكلة في هذا الاستدلال؟",
+answers:[
+"الاعتماد على رأي الأغلبية بدل الدليل",
+"استخدام دليل علمي",
+"طرح سؤال واضح",
+"مقارنة مصدرين"
+],
+correct:0
+},
+{
+id:"observation-1",
+category:"تحدي ملاحظة",
+question:"أي كلمة تختلف عن البقية؟",
+answers:["كتاب","قلم","دفتر","تفاحة"],
+correct:3
+}
+];
+
+const defaultState={
+completed:[],
+streak:0,
+bestStreak:0,
+correct:0,
+attempts:0,
+lastDate:""
+};
+
+let state=JSON.parse(localStorage.getItem(STORAGE_KEY))||defaultState;
+let selected=null;
+let answered=false;
+
+const todayKey=new Date().toISOString().slice(0,10);
+
+function save(){
+localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+}
+
+function dayNumber(){
+const base=new Date("2026-01-01T00:00:00");
+const today=new Date(todayKey+"T00:00:00");
+return Math.floor((today-base)/86400000);
+}
+
+function getTodayChallenge(){
+return challenges[Math.abs(dayNumber())%challenges.length];
+}
+
+function alreadyCompletedToday(){
+return state.completed.some(x=>x.date===todayKey);
+}
+
+function renderChallenge(){
+
+const challenge=getTodayChallenge();
+
+document.getElementById("category").textContent=challenge.category;
+document.getElementById("question").textContent=challenge.question;
+
+const answers=document.getElementById("answers");
+answers.innerHTML="";
+
+challenge.answers.forEach((answer,index)=>{
+
+const button=document.createElement("button");
+button.className="answer";
+button.textContent=answer;
+button.dataset.index=index;
+
+button.addEventListener("click",()=>{
+
+if(answered)return;
+
+document.querySelectorAll(".answer")
+.forEach(x=>x.classList.remove("selected"));
+
+button.classList.add("selected");
+
+selected=index;
+
+document.getElementById("submit").disabled=false;
+
+});
+
+answers.appendChild(button);
+
+});
+
+if(alreadyCompletedToday()){
+showCompletedState();
+}else{
+resetChallengeState();
+}
+}
+
+function resetChallengeState(){
+
+answered=false;
+selected=null;
+
+document.getElementById("submit").disabled=true;
+document.getElementById("resultIcon").textContent="○";
+document.getElementById("score").textContent="0/1";
+document.getElementById("resultTitle").textContent="نتيجتك اليوم";
+document.getElementById("resultText").textContent=
+"أكمل تحدي اليوم لتحصل على نتيجتك.";
+
+document.getElementById("instruction").textContent=
+"اختر الإجابة الصحيحة.";
+}
+
+function showCompletedState(){
+
+const record=state.completed.find(x=>x.date===todayKey);
+
+answered=true;
+
+document.querySelectorAll(".answer")
+.forEach((button,index)=>{
+button.disabled=true;
+
+if(index===record.selected){
+button.classList.add(
+record.correct?"correct":"wrong"
+);
+}
+
+if(
+record.correctIndex===index &&
+!record.correct
+){
+button.classList.add("correct");
+}
+});
+
+document.getElementById("submit").disabled=true;
+
+document.getElementById("resultIcon").textContent=
+record.correct?"✓":"×";
+
+document.getElementById("score").textContent=
+record.correct?"1/1":"0/1";
+
+document.getElementById("resultTitle").textContent=
+record.correct?"أحسنت!":"حاول غدًا مجددًا";
+
+document.getElementById("resultText").textContent=
+record.correct
+?"أتممت تحدي اليوم بنجاح."
+:"انتهى تحدي اليوم. نراك غدًا.";
+
+document.getElementById("instruction").textContent=
+"تم تسجيل نتيجة اليوم.";
+}
+
+document.getElementById("submit").addEventListener("click",()=>{
+
+if(selected===null||answered)return;
+
+const challenge=getTodayChallenge();
+
+const correct=selected===challenge.correct;
+
+answered=true;
+
+state.attempts++;
+
+if(correct)state.correct++;
+
+state.completed.push({
+date:todayKey,
+challengeId:challenge.id,
+selected,
+correct,
+correctIndex:challenge.correct
+});
+
+updateStreak();
+
+save();
+
+document.querySelectorAll(".answer")
+.forEach((button,index)=>{
+
+button.disabled=true;
+
+if(index===selected){
+button.classList.add(correct?"correct":"wrong");
+}
+
+if(index===challenge.correct&&!correct){
+button.classList.add("correct");
+}
+
+});
+
+document.getElementById("resultIcon").textContent=
+correct?"✓":"×";
+
+document.getElementById("score").textContent=
+correct?"1/1":"0/1";
+
+document.getElementById("resultTitle").textContent=
+correct?"أحسنت!":"ليست صحيحة";
+
+document.getElementById("resultText").textContent=
+correct
+?"أتممت تحدي اليوم بنجاح."
+:"لا بأس، المهم أنك حاولت.";
+
+document.getElementById("instruction").textContent=
+"تم تسجيل إجابتك.";
+
+renderStats();
+showToast(correct?"إجابة صحيحة ✓":"تم تسجيل النتيجة");
+
+});
+
+function updateStreak(){
+
+if(state.lastDate===todayKey)return;
+
+const yesterday=new Date();
+yesterday.setDate(yesterday.getDate()-1);
+
+const yesterdayKey=yesterday.toISOString().slice(0,10);
+
+if(state.lastDate===yesterdayKey){
+state.streak++;
+}else{
+state.streak=1;
+}
+
+state.bestStreak=Math.max(
+state.bestStreak,
+state.streak
+);
+
+state.lastDate=todayKey;
+}
+
+function renderStats(){
+
+document.getElementById("streak").textContent=state.streak;
+document.getElementById("totalCompleted").textContent=
+state.completed.length;
+document.getElementById("bestStreak").textContent=
+state.bestStreak;
+
+document.getElementById("successRate").textContent=
+state.attempts
+?Math.round((state.correct/state.attempts)*100)+"%"
+:"—";
+
+renderDays();
+}
+
+function renderDays(){
+
+const days=document.getElementById("days");
+days.innerHTML="";
+
+for(let i=6;i>=0;i--){
+
+const date=new Date();
+date.setDate(date.getDate()-i);
+
+const key=date.toISOString().slice(0,10);
+
+const done=state.completed.some(x=>x.date===key);
+
+const item=document.createElement("div");
+
+item.className="day"+(done?" done":"");
+
+item.textContent=
+date.toLocaleDateString("ar-EG",{weekday:"short"}).replace("،","");
+
+days.appendChild(item);
+
+}
+}
+
+function showToast(message){
+
+const toast=document.getElementById("toast");
+
+toast.textContent=message;
+toast.classList.add("show");
+
+clearTimeout(showToast.timer);
+
+showToast.timer=setTimeout(()=>{
+toast.classList.remove("show");
+},2200);
+}
+
+document.getElementById("menu").addEventListener("click",()=>{
+document.getElementById("sidebar").classList.toggle("open");
+document.getElementById("overlay").classList.toggle("show");
+});
+
+document.getElementById("overlay").addEventListener("click",()=>{
+document.getElementById("sidebar").classList.remove("open");
+document.getElementById("overlay").classList.remove("show");
+});
+
+document.querySelectorAll(".nav button").forEach(button=>{
+
+button.addEventListener("click",()=>{
+
+document.querySelectorAll(".nav button")
+.forEach(x=>x.classList.remove("active"));
+
+button.classList.add("active");
+
+document.getElementById("sidebar").classList.remove("open");
+document.getElementById("overlay").classList.remove("show");
+
+const page=button.dataset.page;
+
+if(page==="today"){
+window.scrollTo({top:0,behavior:"smooth"});
+}
+
+if(page==="streak"){
+document.querySelector(".streak-card")
+.scrollIntoView({behavior:"smooth"});
+}
+
+if(page==="stats"){
+document.querySelector(".info")
+.scrollIntoView({behavior:"smooth"});
+}
+
+});
+
+});
+
+renderChallenge();
+renderStats();
+</script>
+
+</body>
+</html>
